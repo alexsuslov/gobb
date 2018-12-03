@@ -8,6 +8,12 @@ GoBB is getting better by the day, so hopefully it'll be ready to graduate from 
 
 ![Screenshot](http://imgur.com/JFSzskx.png)
 
+## Develop
+```
+docker-compose start db
+```
+
+
 ## Installation
 
 ### Get GoBB
@@ -27,7 +33,7 @@ We'll need to create a new database for GoBB's data to be stored:
 $ psql
 # CREATE DATABASE gobb;
 CREATE DATABASE
-# CREATE ROLE gobb WITH PASSWORD 'password';
+# CREATE ROLE gobb WITH PASSWORD 'db_password';
 CREATE ROLE
 # GRANT ALL PRIVILEGES ON DATABASE gobb TO gobb;
 GRANT

@@ -1,0 +1,24 @@
+@startuml
+package "Internet"{
+   [User]
+   [Google]
+}
+
+[User]<-->[ReactJS Client]
+
+[Google]<-->[GOBB]: <html />
+
+[GraphQL]
+
+database Postgres {
+}
+database Redis {
+}
+
+[GraphQL] <-->[GOBB]
+[GOBB] <--> Postgres : BB Data
+[GOBB] <--> Redis: User Data
+
+[ReactJS Client] <--> [GraphQL]: {json}
+
+@enduml

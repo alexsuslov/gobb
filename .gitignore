@@ -3,3 +3,8 @@ gobb.conf
 .DS_Store
 dbconf.yml
 templates/static/.sass-cache
+data
+log
+etc
+
+.idea

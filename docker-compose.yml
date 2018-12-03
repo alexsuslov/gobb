@@ -1,0 +1,21 @@
+version: '3.1'
+services:
+  db:
+    image: postgres
+    # restart: always
+    volumes:
+      - ./data/postgresql:/var/lib/postgresql
+      - ./log:/var/log/postgresql
+      - ./etc:/etc/postgresql
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: gobb
+      POSTGRES_USER: gobb
+      POSTGRES_PASSWORD: db_password
+
+  # adminer:
+  #   image: adminer
+  #   restart: always
+  #   ports:
+  #   - 10080:8080
