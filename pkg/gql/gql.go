@@ -43,6 +43,8 @@ func Field(Name string, Type string, c string) (string, error) {
 	//todo depricated int64 != GraphQLInt
 	case "int64":
 		return fmt.Sprintf(`"%s": &graphql.Field{ Type: graphql.Int}`+c, Name), nil
+	case "int32":
+		return fmt.Sprintf(`"%s": &graphql.Field{ Type: graphql.Int}`+c, Name), nil
 	case "pq.NullTime":
 		return fmt.Sprintf(`"%s": &graphql.Field{ Type: graphql.DateTime}`+c, Name), nil
 	case "time.Time":

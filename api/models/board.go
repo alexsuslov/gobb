@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"github.com/alexsuslov/gobb/pkg/config"
 	"github.com/lib/pq"
-	"github.com/satori/go.uuid"
 	"math"
 	"time"
 )
 
 type Board struct {
-	Id          uuid.UUID `db:"id"`
+	Id          int `db:"id"`
 	Title       string    `db:"title"`
 	Description string    `db:"description"`
 	Order       int       `db:"ordering"`
@@ -23,7 +22,7 @@ type BoardLatest struct {
 
 type JoinBoardView struct {
 	Board       *Board      `db:"-"`
-	Id          uuid.UUID   `db:"id"`
+	Id          int   `db:"id"`
 	Title       string      `db:"title"`
 	Description string      `db:"description"`
 	Order       int         `db:"ordering"`
@@ -32,10 +31,10 @@ type JoinBoardView struct {
 
 type JoinThreadView struct {
 	Thread      *Post       `db:"-"`
-	Id          uuid.UUID   `db:"id"`
-	BoardId     uuid.UUID   `db:"board_id"`
+	Id          int   `db:"id"`
+	BoardId     int   `db:"board_id"`
 	Author      *User       `db:"-"`
-	AuthorId    int64       `db:"author_id"`
+	AuthorId    int       `db:"author_id"`
 	Title       string      `db:"title"`
 	CreatedOn   time.Time   `db:"created_on"`
 	LatestReply time.Time   `db:"latest_reply"`
@@ -52,7 +51,7 @@ func NewBoard(title, desc string, order int) *Board {
 	}
 }
 
-func UpdateBoard(title, desc string, order int, id string) *Board {
+func UpdateBoard(title, desc string, order int, id int) *Board {
 	return &Board{
 		Title:       title,
 		Description: desc,
@@ -61,7 +60,7 @@ func UpdateBoard(title, desc string, order int, id string) *Board {
 	}
 }
 
-func GetBoard(id string) (*Board, error) {
+func GetBoard(id int) (*Board, error) {
 	db := GetDbSession()
 	obj, err := db.Get(&Board{}, id)
 	if obj == nil {
@@ -83,9 +82,9 @@ func GetBoards() ([]*Board, error) {
 func GetBoardsUnread(user *User) ([]*JoinBoardView, error) {
 	db := GetDbSession()
 
-	user_id := ""
+	user_id := int(-1)
 	if user != nil {
-		user_id = user.Id.String()
+		user_id = user.Id
 	}
 
 	var boards []*JoinBoardView
@@ -102,7 +101,7 @@ func GetBoardsUnread(user *User) ([]*JoinBoardView, error) {
     `, user_id)
 
 	for i := range boards {
-		if user_id == "" {
+		if user_id == -1 {
 			boards[i].ViewedOn = pq.NullTime{Time: time.Now(), Valid: true}
 		}
 
@@ -143,9 +142,9 @@ func (board *Board) GetThreads(page int, user *User) ([]*JoinThreadView, error) 
 	var threads []*JoinThreadView
 	i_begin := int64(page) * (threads_per_page - 1)
 
-	user_id := ""
+	user_id := int(-1)
 	if user != nil {
-		user_id = user.Id.String()
+		user_id = user.Id
 	}
 	_, err = db.Select(&threads, `
         SELECT 
@@ -172,7 +171,7 @@ func (board *Board) GetThreads(page int, user *User) ([]*JoinThreadView, error) 
     `, board.Id, threads_per_page-1, i_begin, user_id)
 
 	for i := range threads {
-		if user_id == "" {
+		if user_id == -1 {
 			threads[i].ViewedOn = pq.NullTime{Time: time.Now(), Valid: true}
 		}
 

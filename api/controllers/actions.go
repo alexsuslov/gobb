@@ -1,10 +1,9 @@
 package controllers
-
 import (
 	"fmt"
-	"github.com/alexsuslov/gobb/api/models"
-	"github.com/alexsuslov/gobb/api/utils"
 	"github.com/lib/pq"
+	"github.com/stevenleeg/gobb/models"
+	"github.com/stevenleeg/gobb/utils"
 	"net/http"
 	"strconv"
 	"time"
@@ -103,7 +102,7 @@ func ActionDeleteThread(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if (thread.AuthorId != user.Id.String()) && !user.CanModerate() {
+	if (thread.AuthorId != user.Id) && !user.CanModerate() {
 		http.NotFound(w, r)
 		return
 	}
@@ -117,9 +116,9 @@ func ActionDeleteThread(w http.ResponseWriter, r *http.Request) {
 	db.Delete(thread)
 
 	if redirect_board {
-		http.Redirect(w, r, fmt.Sprintf("/board/%s", thread.BoardId), http.StatusFound)
+		http.Redirect(w, r, fmt.Sprintf("/board/%d", thread.BoardId), http.StatusFound)
 	} else {
-		http.Redirect(w, r, fmt.Sprintf("/board/%s/%s", thread.BoardId, thread.ParentId.String), http.StatusFound)
+		http.Redirect(w, r, fmt.Sprintf("/board/%d/%d", thread.BoardId, thread.ParentId.Int64), http.StatusFound)
 	}
 
 }
@@ -132,9 +131,11 @@ func ActionMoveThread(w http.ResponseWriter, r *http.Request) {
 	}
 
 	thread_id_str := r.FormValue("post_id")
+	thread_id, err := strconv.Atoi(thread_id_str)
 	board_id_str := r.FormValue("to")
+	board_id, err := strconv.Atoi(board_id_str)
 
-	op, err := models.GetPost(thread_id_str)
+	op, err := models.GetPost(thread_id)
 	boards, _ := models.GetBoards()
 
 	if op == nil || err != nil {
@@ -144,14 +145,14 @@ func ActionMoveThread(w http.ResponseWriter, r *http.Request) {
 
 	if board_id_str != "" {
 		db := models.GetDbSession()
-		new_board, _ := models.GetBoard(board_id_str)
+		new_board, _ := models.GetBoard(board_id)
 		if new_board == nil {
 			http.NotFound(w, r)
 			return
 		}
 
 		_, err := db.Exec("UPDATE posts SET board_id=$1 WHERE parent_id=$2", new_board.Id, op.Id)
-		op.BoardId = new_board.Id.String()
+		op.BoardId = new_board.Id
 		db.Update(op)
 		if err != nil {
 			http.NotFound(w, r)
@@ -161,7 +162,7 @@ func ActionMoveThread(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, fmt.Sprintf("/board/%d/%d", op.BoardId, op.Id), http.StatusFound)
 	}
 
-	board, err := models.GetBoard(op.BoardId)
+	board, err := models.GetBoard(int(op.BoardId))
 
 	utils.RenderTemplate(w, r, "action_move_thread.html", map[string]interface{}{
 		"board":  board,

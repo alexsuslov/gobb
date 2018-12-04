@@ -10,15 +10,14 @@ import (
 	"fmt"
 	"github.com/alexsuslov/gobb/pkg/config"
 	"github.com/lib/pq"
-	"github.com/satori/go.uuid"
 	"io"
 	"strconv"
 	"time"
 )
 
 type User struct {
-	Id            uuid.UUID      `db:"id"`
-	GroupId       uuid.UUID      `db:"group_id"`
+	Id            int      `db:"id"`
+	GroupId       int      `db:"group_id"`
 	CreatedOn     time.Time      `db:"created_on"`
 	Username      string         `db:"username"`
 	Password      string         `db:"password"`
@@ -52,7 +51,7 @@ func AuthenticateUser(username, password string) (error, *User) {
 		return err, nil
 	}
 
-	if user.Id.String() == "" {
+	if user.Id <= 0 {
 		return errors.New("Invalid username/password"), nil
 	}
 

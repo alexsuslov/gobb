@@ -1,22 +1,24 @@
 package models
 
 import (
-	"database/sql"
+	//"database/sql"
+	//"database/sql"
+
 	"errors"
 	"fmt"
+	"github.com/alexsuslov/gobb/api/sqlint"
 	"github.com/alexsuslov/gobb/pkg/config"
 	"github.com/coopernurse/gorp"
-	"github.com/satori/go.uuid"
 	"math"
 	"time"
 )
 
 type Post struct {
-	Id          uuid.UUID      `db:"id"`
-	BoardId     string      `db:"board_id"`
-	ParentId    sql.NullString `db:"parent_id"`
+	Id          int      `db:"id"`
+	BoardId     int      `db:"board_id"`
+	ParentId    sqlint.NullInt 		`db:"parent_id"`
 	Author      *User          `db:"-"`
-	AuthorId    string      `db:"author_id"`
+	AuthorId    int      `db:"author_id"`
 	Title       string         `db:"title"`
 	Content     string         `db:"content"`
 	CreatedOn   time.Time      `db:"created_on"`
@@ -29,8 +31,8 @@ type Post struct {
 // Initializes a new struct, adds some data, and returns the pointer to it
 func NewPost(author *User, board *Board, title, content string) *Post {
 	post := &Post{
-		BoardId:   board.Id.String(),
-		AuthorId:  author.Id.String(),
+		BoardId:   board.Id,
+		AuthorId:  author.Id,
 		Title:     title,
 		Content:   content,
 		CreatedOn: time.Now(),
@@ -40,7 +42,7 @@ func NewPost(author *User, board *Board, title, content string) *Post {
 	return post
 }
 
-func GetPost(id string) (*Post, error) {
+func GetPost(id int) (*Post, error) {
 	db := GetDbSession()
 	obj, err := db.Get(&Post{}, id)
 	if obj == nil {
@@ -109,7 +111,7 @@ func (post *Post) PostGet(s gorp.SqlExecutor) error {
 
 // Ensures that a post is valid
 func (post *Post) Validate() error {
-	if post.BoardId == "" {
+	if post.BoardId == -1 {
 		return errors.New("Board does not exist")
 	}
 
@@ -117,7 +119,8 @@ func (post *Post) Validate() error {
 		return errors.New("Post must be longer than three characters")
 	}
 
-	if !post.ParentId.Valid && len(post.Title) <= 3 {
+	//if post.ParentId && len(post.Title) <= 3 {
+	if len(post.Title) <= 3 {
 		return errors.New("Post title must be longer than three characters")
 	}
 
@@ -195,11 +198,11 @@ func (post *Post) DeleteAllChildren() error {
 }
 
 // Get the thread id for a post
-func (post *Post) GetThreadId() string {
+func (post *Post) GetThreadId() int {
 	if post.ParentId.Valid {
-		return post.ParentId.String
+		return post.ParentId.Int
 	} else {
-		return post.Id.String()
+		return post.Id
 	}
 }
 

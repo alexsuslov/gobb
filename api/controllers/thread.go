@@ -1,11 +1,12 @@
 package controllers
 
 import (
-	"database/sql"
+	//"database/sql"
 	"fmt"
+	"github.com/alexsuslov/gobb/api/sqlint"
 	"net/http"
 	"strconv"
-	"time"
+	//"time"
 
 	"github.com/alexsuslov/gobb/api/models"
 	"github.com/alexsuslov/gobb/api/utils"
@@ -22,7 +23,7 @@ func Thread(w http.ResponseWriter, r *http.Request) {
 
 	board_id_str := mux.Vars(r)["board_id"]
 	board_id, _ := strconv.Atoi(board_id_str)
-	board, err := models.GetBoard(board_id)
+	board, err := models.GetBoard(int(board_id))
 
 	post_id_str := mux.Vars(r)["post_id"]
 	post_id, _ := strconv.Atoi(post_id_str)
@@ -47,8 +48,10 @@ func Thread(w http.ResponseWriter, r *http.Request) {
 		}
 
 		post := models.NewPost(current_user, board, title, content)
-		post.ParentId = sql.NullInt64{int64(post_id), true}
-		op.LatestReply = time.Now()
+		post.ParentId = sqlint.NullInt{
+			Int:post_id,
+			Valid: true,
+		}
 
 		posting_error = post.Validate()
 
@@ -106,7 +109,7 @@ func Thread(w http.ResponseWriter, r *http.Request) {
 				return false
 			}
 
-			return (current_user.CanModerate() && thread.ParentId.Valid == false)
+			return (current_user.CanModerate() && thread.ParentId.Valid)
 		},
 
 		"CurrentUserCanDeletePost": func(thread *models.Post) bool {

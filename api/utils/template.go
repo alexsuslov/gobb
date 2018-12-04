@@ -126,8 +126,8 @@ func RenderTemplate(
 	selected_template, _ := models.GetStringSetting("template")
 	var base_path string
 	if selected_template == "default" {
-		pkg, _ := build.Import("github.com/stevenleeg/gobb/gobb", ".", build.FindOnly)
-		base_path = filepath.Join(pkg.SrcRoot, pkg.ImportPath, "../templates/")
+		pkg, _ := build.Import("github.com/alexsuslov/gobb/pkg/", ".", build.FindOnly)
+		base_path = filepath.Join(pkg.SrcRoot, pkg.ImportPath, "/templates/")
 	} else {
 		base_path, _ = config.Config.GetString("gobb", "base_path")
 		base_path = filepath.Join(base_path, "templates", selected_template)

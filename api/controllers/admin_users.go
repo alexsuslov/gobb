@@ -104,7 +104,7 @@ func AdminUser(w http.ResponseWriter, r *http.Request) {
 		}
 
 		group_id, _ := strconv.Atoi(r.FormValue("group_id"))
-		user.GroupId = int64(group_id)
+		user.GroupId = int(group_id)
 
 		if form_error == "" {
 			db.Update(user)

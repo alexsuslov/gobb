@@ -45,7 +45,7 @@ func AdminBoards(w http.ResponseWriter, r *http.Request) {
 		for i := 0; i < len(r.Form["board_id"]); i++ {
 			// basically repeat the process for inserting a board
 			form_id, _ := strconv.Atoi(r.Form["board_id"][i])
-			id := int64(form_id)
+			id := int(form_id)
 			name := r.Form["name"][i]
 			desc := r.Form["description"][i]
 			form_order := r.Form["order"][i]

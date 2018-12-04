@@ -4,16 +4,15 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/satori/go.uuid"
 	"time"
 )
 
 type View struct {
 	Id     string    `db:"id"`
 	Post   *Post     `db:"-"`
-	PostId uuid.UUID `db:"post_id"`
+	PostId int     `db:"post_id"`
 	User   *User     `db:"-"`
-	UserId uuid.UUID `db:"user_id"`
+	UserId int     `db:"user_id"`
 	Time   time.Time `db:"time"`
 }
 
